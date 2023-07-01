@@ -2,6 +2,7 @@ const program = require('commander');
 const Board = require('./board/board');
 const Move = require('./move/move');
 const Movestack = require('./move/stack');
+const fs = require('fs');
 
 program.option("--row <row>", {
     type: Number,
@@ -26,18 +27,25 @@ const startCol = parseInt(program.opts().col);
 
 const main = (startRow, startCol) => {
 
+    const filePath = "./logs/outout-"+startRow+"-"+startCol+".txt";
+
+    let fh = fs.open(filePath, 'w', (err, fd) => {});
 
     let moveStack = new Movestack();
     let board = new Board(moveStack);
 
     let moveCount = 0;
+    let maxDepth = 0;
 
     process.stdout.write("Starting position: " + startRow + ", " + startCol + "\n\n");
 
     let move = new Move(startRow, startCol, []);
     board.genNextMoveWeights(move);
 
-    while (board.moveStack.size() < 64 && moveCount < Number.MAX_SAFE_INTEGER) {
+    while (board.moveStack.size() < 63 && moveCount < Number.MAX_SAFE_INTEGER) {
+        if (board.moveStack.size() > maxDepth) {
+            maxDepth = board.moveStack.size();
+        }
         // console.log(board.moveStack.size());
         // console.log(move);
         if (move.hasValidMoves()) {
@@ -48,11 +56,15 @@ const main = (startRow, startCol) => {
         }
         else {
             move = board.rewind();
+
         }
 
+        // board.dumpBoardToFile(filePath);
+
         if (++ moveCount % 1000000 == 0) {
-            if (moveCount % 100000000 == 0) {
-                process.stdout.write(board.moveStack.size() + "\n");
+            if (moveCount % 10000000 == 0) {
+                process.stdout.write("Max depth: " + maxDepth + "\n");
+                maxDepth = 0;
             }
             else {
                 process.stdout.write(".");
@@ -61,22 +73,9 @@ const main = (startRow, startCol) => {
         }
     }
 
-    console.log(move);
-
-    // while (moveStack.size() < 64) {
-    //     if (move.hasValidMoves()) {
-
-    //         nextMove = move.getNextMove(board)
-    //         moveStack.push(move);
-    //         move = nextMove;
-    //     }
-    //     else {
-    //         move = moveStack.pop();
-    //     }
-    // }
-
-    // console.log(moveStack);
+    process.stdout.write("\n\n" + moveCount + " moves\n");
     board.printBoard();
+    console.log(move);
 }
 
 main(startRow, startCol);
