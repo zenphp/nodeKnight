@@ -42,24 +42,22 @@ const main = (startRow, startCol) => {
     let move = new Move(startRow, startCol, []);
     board.genNextMoveWeights(move);
 
-    while (board.moveStack.size() < 63 && moveCount < Number.MAX_SAFE_INTEGER) {
+    while (board.moveStack.size() <= 63 && moveCount < Number.MAX_SAFE_INTEGER) {
         if (board.moveStack.size() > maxDepth) {
             maxDepth = board.moveStack.size();
         }
-        // console.log(board.moveStack.size());
-        // console.log(move);
         if (move.hasValidMoves()) {
             let nextMove = move.getNextMove();
             board.placePiece(move);
             board.genNextMoveWeights(nextMove);
             move = nextMove
         }
+        else if (board.moveStack.size() == 63) {
+            board.placePiece(move);
+        }
         else {
             move = board.rewind();
-
         }
-
-        // board.dumpBoardToFile(filePath);
 
         if (++ moveCount % 1000000 == 0) {
             if (moveCount % 10000000 == 0) {
