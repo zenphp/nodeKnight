@@ -1,35 +1,9 @@
-const program = require('commander');
 const Board = require('./board/board');
 const Move = require('./move/move');
 const Movestack = require('./move/stack');
-const fs = require('fs');
 
-program.option("--row <row>", {
-    type: Number,
-    description: "The row to place the knight in",
-    default: 0,
-    required: true,
-    min: 0,
-    max: 7
-}).option("--col <col>", {
-    type: Number,
-    description: "The col to place the knight in",
-    default: 0,
-    required: true,
-    min: 0,
-    max: 7
-});
-
-program.parse(process.argv);
-
-const startRow = parseInt(program.opts().row);
-const startCol = parseInt(program.opts().col);
 
 const main = (startRow, startCol) => {
-
-    const filePath = "./logs/outout-"+startRow+"-"+startCol+".txt";
-
-    let fh = fs.open(filePath, 'w', (err, fd) => {});
 
     let moveStack = new Movestack();
     let board = new Board(moveStack);
@@ -38,7 +12,7 @@ const main = (startRow, startCol) => {
     let maxDepth = 0;
 
     process.stdout.write("Starting position: " + startRow + ", " + startCol + "\n\n");
-
+    process.stdout.write("Calculating moves: ( . = 1,000,000 moves)\n");
     let move = new Move(startRow, startCol, []);
     board.genNextMoveWeights(move);
 
@@ -59,21 +33,20 @@ const main = (startRow, startCol) => {
             move = board.rewind();
         }
 
-        if (++ moveCount % 1000000 == 0) {
-            if (moveCount % 10000000 == 0) {
-                process.stdout.write("Max depth: " + maxDepth + "\n");
-                maxDepth = 0;
-            }
-            else {
-                process.stdout.write(".");
-            }
-
+        if (++moveCount % 1000000 == 0) {
+            process.stdout.write(".");
         }
     }
 
-    process.stdout.write("\n\n" + moveCount + " moves\n");
+    process.stdout.write("\n\nTotal: " + Intl.NumberFormat('en-us').format(moveCount) + " moves calculated.\n");
     board.printBoard();
-    console.log(move);
+    process.stdout.write("=========================================\n");
 }
 
-main(startRow, startCol);
+for (let row = 0; row < 8; row++) {
+    for (let col = 0; col < 8; col++) {
+        main(row, col);
+    }
+}
+
+// main(startRow, startCol);

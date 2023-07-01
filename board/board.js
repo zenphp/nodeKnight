@@ -1,5 +1,4 @@
 const POSSIBLE_MOVES = require('../move/possibleMoves');
-const fs = require('fs');
 
 class Board{
     constructor(moveStack){
@@ -18,18 +17,6 @@ class Board{
             }
             process.stdout.write("\n\n");
         }
-    }
-
-    dumpBoardToFile(filePath){
-        fs.appendFileSync(filePath, "\n");
-        for (let i = 0; i < 8; i++){
-            for (let j=0; j < 8; j++){
-                fs.appendFileSync(filePath, this.board[i][j].toString().padStart(3,' ') + "\t");
-            }
-            fs.appendFileSync(filePath, "\n");
-
-        }
-        fs.appendFileSync(filePath, "\n");
     }
 
     placePiece(move) {
